@@ -1,0 +1,8 @@
+name: Sentiment
+version: '${project.version}'
+main: com.justinmtech.sentiment.Sentiment
+api-version: 1.13
+prefix: Sentiment
+authors: [ justinmtech ]
+description: Gather valuable opinions about your server.
+website: https://justinmtech.com
