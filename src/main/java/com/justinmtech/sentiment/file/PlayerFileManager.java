@@ -1,5 +1,6 @@
-package com.justinmtech.sentiment;
+package com.justinmtech.sentiment.file;
 
+import com.justinmtech.sentiment.player.SPlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -38,15 +39,25 @@ public class PlayerFileManager {
         if (created) logger.log(Level.INFO, "Player file created: " + FILE_NAME + ".yml");
     }
 
+    public PlayerFileManager() {
+        createFileIfNotExists();
+    }
+
     /**
      * Set a player field in the file
      * @param player SPlayer object
      */
     public void setPlayer(@NotNull SPlayer player) {
         UUID uuid = player.getUuid();
+        getFileConfiguration().set("test", "test");
         setDataInFile(getPlayerPath(uuid) + "." + PLAYER_NAME, player.getName());
         setDataInFile(getPlayerPath(uuid) + "." + OPT_OUT, player.isOptOut());
         setDataInFile(getPlayerPath(uuid) + "." + QUESTIONS_ANSWERED, player.getQuestionsAnswered());
+        try {
+            getFileConfiguration().save(getFile());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

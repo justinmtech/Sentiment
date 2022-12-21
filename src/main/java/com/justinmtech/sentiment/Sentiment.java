@@ -1,5 +1,10 @@
 package com.justinmtech.sentiment;
 
+import com.justinmtech.sentiment.file.PlayerFileManager;
+import com.justinmtech.sentiment.file.ResponseFileManager;
+import com.justinmtech.sentiment.player.PlayerCache;
+import com.justinmtech.sentiment.questions.Asker;
+import com.justinmtech.sentiment.questions.QuestionManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;

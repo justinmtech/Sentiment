@@ -1,5 +1,6 @@
-package com.justinmtech.sentiment;
+package com.justinmtech.sentiment.player;
 
+import com.justinmtech.sentiment.questions.Question;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,6 +19,13 @@ public class SPlayer {
         this.uuid = player.getUniqueId();
         this.questionsAnswered = new HashSet<>();
         this.optOut = false;
+    }
+
+    public SPlayer(@NotNull String name, @NotNull UUID uuid, Set<String> questionsAnswered, boolean optOut) {
+        this.name = name;
+        this.uuid = uuid;
+        this.questionsAnswered = questionsAnswered;
+        this.optOut = optOut;
     }
 
     public SPlayer(@NotNull String name, @NotNull UUID uuid) {

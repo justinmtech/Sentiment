@@ -1,5 +1,6 @@
-package com.justinmtech.sentiment;
+package com.justinmtech.sentiment.questions;
 
+import com.justinmtech.sentiment.questions.Question;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 

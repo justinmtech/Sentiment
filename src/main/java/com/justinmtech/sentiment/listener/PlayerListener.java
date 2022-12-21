@@ -1,8 +1,8 @@
 package com.justinmtech.sentiment.listener;
 
-import com.justinmtech.sentiment.PlayerCache;
-import com.justinmtech.sentiment.PlayerFileManager;
-import com.justinmtech.sentiment.SPlayer;
+import com.justinmtech.sentiment.player.PlayerCache;
+import com.justinmtech.sentiment.file.PlayerFileManager;
+import com.justinmtech.sentiment.player.SPlayer;
 import com.justinmtech.sentiment.Sentiment;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

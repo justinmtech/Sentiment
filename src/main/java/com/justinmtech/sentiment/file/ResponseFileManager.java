@@ -1,5 +1,10 @@
-package com.justinmtech.sentiment;
+package com.justinmtech.sentiment.file;
 
+import com.justinmtech.sentiment.*;
+import com.justinmtech.sentiment.player.SPlayer;
+import com.justinmtech.sentiment.questions.PlayerResponse;
+import com.justinmtech.sentiment.questions.Question;
+import com.justinmtech.sentiment.questions.QuestionManager;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

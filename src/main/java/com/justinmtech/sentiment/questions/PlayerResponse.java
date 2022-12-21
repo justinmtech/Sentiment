@@ -1,5 +1,6 @@
-package com.justinmtech.sentiment;
+package com.justinmtech.sentiment.questions;
 
+import com.justinmtech.sentiment.player.SPlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 

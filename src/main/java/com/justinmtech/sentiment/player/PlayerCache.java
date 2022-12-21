@@ -1,4 +1,4 @@
-package com.justinmtech.sentiment;
+package com.justinmtech.sentiment.player;
 
 import org.jetbrains.annotations.NotNull;
 

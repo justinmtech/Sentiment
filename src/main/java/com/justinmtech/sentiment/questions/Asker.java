@@ -1,5 +1,8 @@
-package com.justinmtech.sentiment;
+package com.justinmtech.sentiment.questions;
 
+import com.justinmtech.sentiment.Sentiment;
+import com.justinmtech.sentiment.player.PlayerCache;
+import com.justinmtech.sentiment.player.SPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
