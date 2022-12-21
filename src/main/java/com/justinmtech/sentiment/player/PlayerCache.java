@@ -27,6 +27,8 @@ public class PlayerCache {
     }
 
     public Optional<SPlayer> getPlayer(@NotNull UUID uuid) {
+        SPlayer sPlayer = getPlayers().get(uuid);
+        if (sPlayer == null) return Optional.empty();
         return Optional.of(getPlayers().get(uuid));
     }
 
@@ -36,9 +38,14 @@ public class PlayerCache {
 
     public Optional<SPlayer> updatePlayer(SPlayer player) {
         if (playerInCache(player.getUuid())) {
-            SPlayer updatedPlayer = getPlayers().replace(player.getUuid(), player);
-            if (updatedPlayer != null) {
-                return Optional.of(updatedPlayer);
+            SPlayer updatedPlayer;
+            try {
+                updatedPlayer = getPlayers().replace(player.getUuid(), player);
+                if (updatedPlayer != null) {
+                    return Optional.of(updatedPlayer);
+                }
+            } catch (Exception e) {
+                return Optional.empty();
             }
         }
         return Optional.empty();
@@ -50,5 +57,9 @@ public class PlayerCache {
 
     public SPlayer removePlayer(UUID uuid) {
         return getPlayers().remove(uuid);
+    }
+
+    public void removeAllPlayers() {
+        getPlayers().clear();
     }
 }
