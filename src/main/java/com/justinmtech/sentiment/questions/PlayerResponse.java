@@ -15,14 +15,14 @@ public class PlayerResponse {
     public PlayerResponse(@NotNull Player player, @NotNull Question question, String response) {
         setPlayer(new SPlayer(player));
         setQuestion(question);
-        setResponseId();
+        setRandomResponseId();
         setResponse(response);
     }
 
     public PlayerResponse(@NotNull SPlayer player, @NotNull Question question, String response) {
         setPlayer(player);
         setQuestion(question);
-        setResponseId();
+        setRandomResponseId();
         setResponse(response);
     }
 
@@ -46,7 +46,7 @@ public class PlayerResponse {
         return responseId;
     }
 
-    public void setResponseId() {
+    public void setRandomResponseId() {
         this.responseId = UUID.randomUUID();
     }
 
