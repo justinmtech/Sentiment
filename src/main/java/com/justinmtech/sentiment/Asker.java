@@ -7,9 +7,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class Asker {
     private final Sentiment plugin;
+    private final PlayerCache cache;
     private final QuestionManager questionManager;
     private final List<Question> questions;
 
@@ -17,6 +19,8 @@ public class Asker {
         this.plugin = plugin;
         this.questionManager = plugin.getQuestionManager();
         this.questions = plugin.getQuestionManager().getQuestions();
+        this.cache = plugin.getCache();
+        run();
     }
 
     private void run() {
@@ -24,7 +28,8 @@ public class Asker {
             @Override
             public void run() {
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    //TODO
+                    Optional<Question> question = getQuestionForPlayer(p.getUniqueId());
+                    question.ifPresent(value -> askQuestion(p, value));
                 }
             }
         }.runTaskTimerAsynchronously(getPlugin(), 0L, 600L);
@@ -38,10 +43,12 @@ public class Asker {
         return plugin;
     }
 
-    //TODO
-    private Optional<Question> getQuestionForPlayer(Player player) {
-        for (Question q : questions) {
-            if (!player.hasAnsweredQuestion(q)) return Optional.of(q);
+    private Optional<Question> getQuestionForPlayer(@NotNull UUID uuid) {
+        Optional<SPlayer> sPlayer = getCache().getPlayer(uuid);
+        if (sPlayer.isPresent()) {
+            for (Question q : questions) {
+                if (!sPlayer.get().hasAnsweredQuestion(q)) return Optional.of(q);
+            }
         }
         return Optional.empty();
     }
@@ -52,5 +59,9 @@ public class Asker {
 
     private List<Question> getQuestions() {
         return questions;
+    }
+
+    public PlayerCache getCache() {
+        return cache;
     }
 }

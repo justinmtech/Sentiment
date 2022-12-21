@@ -8,15 +8,34 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Load and save SPlayers from the FILE_NAME.yml
+ * Add, remove and update SPlayers in the FILE_NAME.yml
  */
 public class PlayerFileManager {
+    //The name to be used for the player storage file
     private final static String FILE_NAME = "players.yml";
 
-    public PlayerFileManager() {
-        createFile();
+    //Collection of players
+    private final static String PLAYER_ROOT = "players";
+
+    //The player's username (if stored)
+    private final static String PLAYER_NAME = "player-name";
+
+    //Whether the player has declined to participate
+    private final static String OPT_OUT = "opt-out";
+
+    //Collection of questions the player has answered
+    private final static String QUESTIONS_ANSWERED = "questionsAnswered";
+
+    //Placeholder for empty player names
+    private final static String UNKNOWN_NAME = "Unknown";
+
+    public PlayerFileManager(Logger logger) {
+        boolean created = createFileIfNotExists();
+        if (created) logger.log(Level.INFO, "Player file created: " + FILE_NAME + ".yml");
     }
 
     /**
@@ -24,8 +43,10 @@ public class PlayerFileManager {
      * @param player SPlayer object
      */
     public void setPlayer(@NotNull SPlayer player) {
-        setDataInFile(player.getUuid(), player.getName());
-        setDataInFile(player.getUuid(), player.getQuestionsAnswered());
+        UUID uuid = player.getUuid();
+        setDataInFile(getPlayerPath(uuid) + "." + PLAYER_NAME, player.getName());
+        setDataInFile(getPlayerPath(uuid) + "." + OPT_OUT, player.isOptOut());
+        setDataInFile(getPlayerPath(uuid) + "." + QUESTIONS_ANSWERED, player.getQuestionsAnswered());
     }
 
     /**
@@ -37,15 +58,16 @@ public class PlayerFileManager {
         ConfigurationSection section = getFileConfiguration().getConfigurationSection(getPlayerPath(uuid));
         if (section == null) return Optional.empty();
 
-        String name = section.getString("player-name");
-        if (name == null) name = "Unknown";
-        SPlayer sPlayer = new SPlayer(name, uuid);
+        String name = section.getString(PLAYER_NAME);
+        if (name == null) name = UNKNOWN_NAME;
+        boolean optOut = section.getBoolean(OPT_OUT, false);
+        SPlayer sPlayer = new SPlayer(name, uuid, optOut);
         sPlayer.setQuestionsAnswered(getQuestionsAnswered(section));
         return Optional.of(sPlayer);
     }
 
     private Set<String> getQuestionsAnswered(@NotNull ConfigurationSection section) {
-        List<?> questionsAnswered = section.getList("questionsAnswered");
+        List<?> questionsAnswered = section.getList(QUESTIONS_ANSWERED);
         if (questionsAnswered == null) return new HashSet<>();
         Set<String> questionsAnsweredList = new HashSet<>();
         for (Object o : questionsAnswered) {
@@ -60,27 +82,15 @@ public class PlayerFileManager {
      * @param uuid UUID of the player to remove
      */
     public void removePlayer(@NotNull UUID uuid) {
-        setDataInFile(uuid, null);
+        setDataInFile(getPlayerPath(uuid), null);
     }
 
-    public void loadPlayers() {
-
-    }
-
-    private void setDataInFile(UUID uuid, Object data) {
-        getFileConfiguration().set(getPlayerPath(uuid), data);
+    private void setDataInFile(String path, Object data) {
+        getFileConfiguration().set(path, data);
     }
 
     private String getPlayerPath(@NotNull UUID uuid) {
-        return "players." + uuid;
-    }
-
-    private String getPlayerNamePath(@NotNull UUID uuid) {
-        return getPlayerPath(uuid) + ".player-name";
-    }
-
-    private String getQuestionsAnsweredPath(@NotNull UUID uuid) {
-        return getPlayerPath(uuid) + ".questionsAnswered";
+        return PLAYER_ROOT + "." + uuid;
     }
 
     private FileConfiguration getFileConfiguration() {
@@ -91,7 +101,7 @@ public class PlayerFileManager {
         return new File(FILE_NAME);
     }
 
-    private boolean createFile() {
+    private boolean createFileIfNotExists() {
         if (!getFile().exists()) {
             try {
                 return getFile().createNewFile();

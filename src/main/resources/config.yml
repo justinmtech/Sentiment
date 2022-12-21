@@ -1,4 +1,4 @@
-interval-in-hours: 24
+interval-in-hours: 1
 questions:
   - "What do you think of the latest update?"
   - "Would you recommend this server to a friend?"

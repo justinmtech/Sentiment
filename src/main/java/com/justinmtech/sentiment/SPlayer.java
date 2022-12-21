@@ -11,17 +11,27 @@ public class SPlayer {
     private final String name;
     private final UUID uuid;
     private Set<String> questionsAnswered;
+    private boolean optOut;
 
     public SPlayer(Player player) {
         this.name = player.getName();
         this.uuid = player.getUniqueId();
         this.questionsAnswered = new HashSet<>();
+        this.optOut = false;
     }
 
     public SPlayer(@NotNull String name, @NotNull UUID uuid) {
         this.name = name;
         this.uuid = uuid;
         this.questionsAnswered = new HashSet<>();
+        this.optOut = false;
+    }
+
+    public SPlayer(@NotNull String name, @NotNull UUID uuid, boolean optOut) {
+        this.name = name;
+        this.uuid = uuid;
+        this.questionsAnswered = new HashSet<>();
+        this.optOut = false;
     }
 
     public String getName() {
@@ -46,5 +56,13 @@ public class SPlayer {
 
     public boolean hasAnsweredQuestion(@NotNull Question question) {
         return getQuestionsAnswered().contains(question.getContent());
+    }
+
+    public boolean isOptOut() {
+        return optOut;
+    }
+
+    public void setOptOut(boolean optOut) {
+        this.optOut = optOut;
     }
 }

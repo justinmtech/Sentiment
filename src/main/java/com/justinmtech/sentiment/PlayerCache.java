@@ -26,6 +26,10 @@ public class PlayerCache {
         return players;
     }
 
+    public Optional<SPlayer> getPlayer(@NotNull UUID uuid) {
+        return Optional.of(getPlayers().get(uuid));
+    }
+
     public void addPlayer(@NotNull UUID uuid, @NotNull String name) {
         getPlayers().put(uuid, new SPlayer(name, uuid));
     }
