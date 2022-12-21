@@ -36,11 +36,15 @@ public class SPlayer {
         return questionsAnswered;
     }
 
-    public void setQuestionsAnswered(Set<String> questionsAnswered) {
+    public void setQuestionsAnswered(@NotNull Set<String> questionsAnswered) {
         this.questionsAnswered = questionsAnswered;
     }
 
-    public void addQuestionAnswered(Question question) {
+    public void addQuestionAnswered(@NotNull Question question) {
         this.questionsAnswered.add(question.getContent());
+    }
+
+    public boolean hasAnsweredQuestion(@NotNull Question question) {
+        return getQuestionsAnswered().contains(question.getContent());
     }
 }
