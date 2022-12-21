@@ -21,9 +21,9 @@ public class QuestionManager {
     public List<Question> getQuestions() {
         List<Question> questionsList = new ArrayList<>();
         try {
-            List<String> questions = (List<String>) getFile().getList("questions", new ArrayList<>());
-            for (String q : questions) {
-                Question question = new Question(q);
+            List<?> questions = getFile().getList("questions", new ArrayList<>());
+            for (Object q : questions) {
+                Question question = new Question(String.valueOf(q));
                 questionsList.add(question);
             }
         } catch (Exception e) {
