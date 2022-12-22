@@ -1,5 +1,6 @@
 package com.justinmtech.sentiment.file;
 
+import com.justinmtech.sentiment.Sentiment;
 import com.justinmtech.sentiment.player.SPlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,6 +17,8 @@ import java.util.logging.Logger;
  * Add, remove and update SPlayers in the FILE_NAME.yml
  */
 public class PlayerFileManager {
+    private final Sentiment plugin;
+
     //The name to be used for the player storage file
     private final static String FILE_NAME = "players.yml";
 
@@ -34,13 +37,12 @@ public class PlayerFileManager {
     //Placeholder for empty player names
     private final static String UNKNOWN_NAME = "Unknown";
 
-    public PlayerFileManager(Logger logger) {
-        boolean created = createFileIfNotExists();
-        if (created) logger.log(Level.INFO, "Player file created: " + FILE_NAME + ".yml");
-    }
+    private File playerFile;
+    private FileConfiguration playerConfigFile;
 
-    public PlayerFileManager() {
-        createFileIfNotExists();
+    public PlayerFileManager(Sentiment plugin) {
+        this.plugin = plugin;
+        createOrLoadFile();
     }
 
     /**
@@ -49,15 +51,10 @@ public class PlayerFileManager {
      */
     public void setPlayer(@NotNull SPlayer player) {
         UUID uuid = player.getUuid();
-        getFileConfiguration().set("test", "test");
+        playerConfigFile.set("test", "test");
         setDataInFile(getPlayerPath(uuid) + "." + PLAYER_NAME, player.getName());
         setDataInFile(getPlayerPath(uuid) + "." + OPT_OUT, player.isOptOut());
         setDataInFile(getPlayerPath(uuid) + "." + QUESTIONS_ANSWERED, player.getQuestionsAnswered());
-        try {
-            getFileConfiguration().save(getFile());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -66,7 +63,8 @@ public class PlayerFileManager {
      * @return Optional of SPlayer
      */
     public Optional<SPlayer> getPlayer(@NotNull UUID uuid) {
-        ConfigurationSection section = getFileConfiguration().getConfigurationSection(getPlayerPath(uuid));
+        File file = getPlayerFile();
+        ConfigurationSection section = getFileConfiguration(file).getConfigurationSection(getPlayerPath(uuid));
         if (section == null) return Optional.empty();
 
         String name = section.getString(PLAYER_NAME);
@@ -97,29 +95,48 @@ public class PlayerFileManager {
     }
 
     private void setDataInFile(String path, Object data) {
-        getFileConfiguration().set(path, data);
+        playerConfigFile.set(path, data);
+        try {
+            playerConfigFile.save(playerFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private String getPlayerPath(@NotNull UUID uuid) {
         return PLAYER_ROOT + "." + uuid;
     }
 
-    private FileConfiguration getFileConfiguration() {
-        return YamlConfiguration.loadConfiguration(getFile());
+    private FileConfiguration getFileConfiguration(File file) {
+        return YamlConfiguration.loadConfiguration(file);
     }
 
-    private File getFile() {
-        return new File(FILE_NAME);
-    }
 
-    private boolean createFileIfNotExists() {
-        if (!getFile().exists()) {
-            try {
-                return getFile().createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    private void createOrLoadFile() {
+        playerFile = new File(getPlugin().getDataFolder(), FILE_NAME);
+        if (!playerFile.exists()) {
+            playerFile.getParentFile().mkdirs();
+            getPlugin().saveResource(FILE_NAME, false);
+            getLogger().log(Level.INFO, "Player data file created.");
         }
-        return false;
+        playerConfigFile = YamlConfiguration.loadConfiguration(playerFile);
     }
+
+    private Sentiment getPlugin() {
+        return plugin;
+    }
+
+    private File getPlayerFile() {
+        return playerFile;
+    }
+
+    public FileConfiguration getPlayerConfigFile() {
+        return playerConfigFile;
+    }
+
+    private Logger getLogger() {
+        return getPlugin().getLogger();
+    }
+
+
 }

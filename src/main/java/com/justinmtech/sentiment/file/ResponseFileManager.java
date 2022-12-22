@@ -23,27 +23,29 @@ public class ResponseFileManager {
     private final Sentiment plugin;
     private final QuestionManager questionManager;
     private final Logger logger;
+
     private static final String FILE_NAME = "responses.yml";
+    private File responseFile;
+    private FileConfiguration responseFileConfig;
 
     public ResponseFileManager(Sentiment plugin) {
         this.plugin = plugin;
         this.logger = plugin.getLogger();
         this.questionManager = plugin.getQuestionManager();
-        createFileIfNotExist();
+        createOrLoadFile();
     }
 
     public boolean addResponseToFile(@NotNull PlayerResponse response, @NotNull Question question) {
-        FileConfiguration responseFile = getResponseFile();
-        if (responseFile != null) {
+        if (responseFile.exists()) {
             if (getQuestionManager().questionExists(question.getContent())) {
-                ConfigurationSection section = responseFile.getConfigurationSection(question.getContent());
+                ConfigurationSection section = responseFileConfig.getConfigurationSection(question.getContent());
                 Map<String, String> map = new HashMap<>();
 
                 map.put("player-name", response.getPlayer().getName());
                 map.put("player-uuid", response.getPlayer().getUuid().toString());
                 map.put("response", response.getResponse());
                 section.set(response.getResponseId().toString(), map);
-                return true;
+                return saveFile();
             } else {
                 getLogger().log(Level.SEVERE, "Error! That question does not exist.");
             }
@@ -54,13 +56,12 @@ public class ResponseFileManager {
     }
 
     public Optional<PlayerResponse> getResponse(@NotNull Question question, @NotNull UUID responseId) {
-        FileConfiguration responseFile = getResponseFile();
         String basePath = question.getContent() + "." + responseId + ".";
-        if (responseFile != null) {
+        if (responseFile.exists()) {
             if (getQuestionManager().questionExists(question.getContent())) {
-                String playerName = responseFile.getString(basePath + "player-name");
-                UUID playerUUID = UUID.fromString(responseFile.getString(basePath + "player-uuid"));
-                String response = responseFile.getString(basePath + "response");
+                String playerName = responseFileConfig.getString(basePath + "player-name");
+                UUID playerUUID = UUID.fromString(responseFileConfig.getString(basePath + "player-uuid"));
+                String response = responseFileConfig.getString(basePath + "response");
                 return Optional.of(new PlayerResponse(new SPlayer(playerName, playerUUID), question, response));
             } else {
                 getLogger().log(Level.SEVERE, "Error! That question does not exist.");
@@ -72,11 +73,10 @@ public class ResponseFileManager {
     }
 
     public boolean removeResponseFromFile(@NotNull Question question, @NotNull UUID responseId) {
-        FileConfiguration responseFile = getResponseFile();
-        if (responseFile != null) {
+        if (responseFile.exists()) {
             if (getQuestionManager().questionExists(question.getContent())) {
-                responseFile.set(question.getContent() + "." + responseId, null);
-                return true;
+                responseFileConfig.set(question.getContent() + "." + responseId, null);
+                return saveFile();
             } else {
                 getLogger().log(Level.SEVERE, "That question does not exist.");
             }
@@ -86,34 +86,31 @@ public class ResponseFileManager {
         return false;
     }
 
-    private void createFileIfNotExist() {
-        File file = new File(FILE_NAME);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                getLogger().log(Level.SEVERE, "Could not create responses.yml file. Plugin disabling.");
-            }
-        }
+    private File getResponseFile() {
+        return responseFile;
     }
 
-    private File getFile() {
-        File file = new File(FILE_NAME);
-        if (file.exists()) {
-            return file;
-        } else {
-            return null;
+    private void createOrLoadFile() {
+        responseFile = new File(getPlugin().getDataFolder(), FILE_NAME);
+        if (!responseFile.exists()) {
+            responseFile.getParentFile().mkdirs();
+            getPlugin().saveResource(FILE_NAME, false);
+            getLogger().log(Level.INFO, "Player data file created.");
         }
+        responseFileConfig = YamlConfiguration.loadConfiguration(responseFile);
     }
 
-    private FileConfiguration getResponseFile() {
-        File file = getFile();
-        if (file == null) return null;
+    public FileConfiguration getResponseFileConfig() {
+        return responseFileConfig;
+    }
+
+    private boolean saveFile() {
         try {
-            return YamlConfiguration.loadConfiguration(file);
-        } catch (IllegalArgumentException e) {
-            getLogger().log(Level.SEVERE, e.getMessage());
-            return null;
+            getResponseFileConfig().save(getResponseFile());
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 

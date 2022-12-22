@@ -5,8 +5,11 @@ import com.justinmtech.sentiment.file.ResponseFileManager;
 import com.justinmtech.sentiment.player.PlayerCache;
 import com.justinmtech.sentiment.questions.Asker;
 import com.justinmtech.sentiment.questions.QuestionManager;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 
+import java.io.File;
 import java.util.logging.Level;
 
 public final class Sentiment extends JavaPlugin {
@@ -16,10 +19,18 @@ public final class Sentiment extends JavaPlugin {
     private Asker asker;
     private PlayerCache cache;
 
+    public Sentiment() {
+        super();
+    }
+
+    protected Sentiment(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
+        super(loader, description, dataFolder, file);
+    }
+
     @Override
     public void onEnable() {
         this.questionManager = new QuestionManager(getConfig());
-        this.playerFileManager = new PlayerFileManager(getLogger());
+        this.playerFileManager = new PlayerFileManager(this);
         this.responseFileManager = new ResponseFileManager(this);
         this.asker = new Asker(this);
         this.cache = new PlayerCache();
