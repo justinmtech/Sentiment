@@ -1,7 +1,8 @@
 package com.justinmtech.sentiment.player;
 
-import junit.framework.Assert;
+
 import junit.framework.TestCase;
+import org.junit.Assert;
 
 import java.util.*;
 
@@ -15,7 +16,7 @@ public class PlayerCacheTest extends TestCase {
         uuid = UUID.randomUUID();
     }
 
-    public void tearDown() throws Exception {
+    public void tearDown() {
         cache = null;
     }
 
