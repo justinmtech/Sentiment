@@ -38,13 +38,12 @@ public class ResponseFileManager {
     public boolean addResponseToFile(@NotNull PlayerResponse response, @NotNull Question question) {
         if (responseFile.exists()) {
             if (getQuestionManager().questionExists(question.getContent())) {
-                ConfigurationSection section = responseFileConfig.getConfigurationSection(question.getContent());
                 Map<String, String> map = new HashMap<>();
 
                 map.put("player-name", response.getPlayer().getName());
                 map.put("player-uuid", response.getPlayer().getUuid().toString());
                 map.put("response", response.getResponse());
-                section.set(response.getResponseId().toString(), map);
+                getResponseFileConfig().set("responses." + response.getResponseId().toString(), map);
                 return saveFile();
             } else {
                 getLogger().log(Level.SEVERE, "Error! That question does not exist.");
@@ -56,12 +55,20 @@ public class ResponseFileManager {
     }
 
     public Optional<PlayerResponse> getResponse(@NotNull Question question, @NotNull UUID responseId) {
-        String basePath = question.getContent() + "." + responseId + ".";
+        String basePath = "responses." + question.getContent() + "." + responseId + ".";
         if (responseFile.exists()) {
             if (getQuestionManager().questionExists(question.getContent())) {
+
                 String playerName = responseFileConfig.getString(basePath + "player-name");
-                UUID playerUUID = UUID.fromString(responseFileConfig.getString(basePath + "player-uuid"));
+                if (playerName == null) playerName = PlayerFileManager.UNKNOWN_NAME;
+
+                String uuidString = responseFileConfig.getString(basePath + "player-uuid");
+                if (uuidString == null) return Optional.empty();
+                UUID playerUUID = UUID.fromString(uuidString);
+
                 String response = responseFileConfig.getString(basePath + "response");
+                if (response == null) response = "";
+
                 return Optional.of(new PlayerResponse(new SPlayer(playerName, playerUUID), question, response));
             } else {
                 getLogger().log(Level.SEVERE, "Error! That question does not exist.");
@@ -75,7 +82,7 @@ public class ResponseFileManager {
     public boolean removeResponseFromFile(@NotNull Question question, @NotNull UUID responseId) {
         if (responseFile.exists()) {
             if (getQuestionManager().questionExists(question.getContent())) {
-                responseFileConfig.set(question.getContent() + "." + responseId, null);
+                responseFileConfig.set("responses." + question.getContent() + "." + responseId, null);
                 return saveFile();
             } else {
                 getLogger().log(Level.SEVERE, "That question does not exist.");
@@ -100,7 +107,7 @@ public class ResponseFileManager {
         responseFileConfig = YamlConfiguration.loadConfiguration(responseFile);
     }
 
-    public FileConfiguration getResponseFileConfig() {
+    private FileConfiguration getResponseFileConfig() {
         return responseFileConfig;
     }
 

@@ -35,7 +35,7 @@ public class PlayerFileManager {
     private final static String QUESTIONS_ANSWERED = "questionsAnswered";
 
     //Placeholder for empty player names
-    private final static String UNKNOWN_NAME = "Unknown";
+    public final static String UNKNOWN_NAME = "Unknown";
 
     private File playerFile;
     private FileConfiguration playerConfigFile;
