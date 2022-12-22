@@ -29,6 +29,9 @@ public final class Sentiment extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+        saveResource("players.yml", false);
+        saveResource("responses.yml", false);
         this.questionManager = new QuestionManager(getConfig());
         this.playerFileManager = new PlayerFileManager(this);
         this.responseFileManager = new ResponseFileManager(this);

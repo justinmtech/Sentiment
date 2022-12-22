@@ -55,6 +55,7 @@ public class PlayerFileManager {
         setDataInFile(getPlayerPath(uuid) + "." + PLAYER_NAME, player.getName());
         setDataInFile(getPlayerPath(uuid) + "." + OPT_OUT, player.isOptOut());
         setDataInFile(getPlayerPath(uuid) + "." + QUESTIONS_ANSWERED, player.getQuestionsAnswered());
+        saveFile();
     }
 
     /**
@@ -96,11 +97,7 @@ public class PlayerFileManager {
 
     private void setDataInFile(String path, Object data) {
         playerConfigFile.set(path, data);
-        try {
-            playerConfigFile.save(playerFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        saveFile();
     }
 
     private String getPlayerPath(@NotNull UUID uuid) {
@@ -130,7 +127,7 @@ public class PlayerFileManager {
         return playerFile;
     }
 
-    public FileConfiguration getPlayerConfigFile() {
+    private FileConfiguration getPlayerConfigFile() {
         return playerConfigFile;
     }
 
@@ -138,5 +135,11 @@ public class PlayerFileManager {
         return getPlugin().getLogger();
     }
 
-
+    private void saveFile() {
+        try {
+            getPlayerConfigFile().save(getPlayerFile());
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Could not save player file!");
+        }
+    }
 }
