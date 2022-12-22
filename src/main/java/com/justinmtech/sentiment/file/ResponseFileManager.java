@@ -5,7 +5,6 @@ import com.justinmtech.sentiment.player.SPlayer;
 import com.justinmtech.sentiment.questions.PlayerResponse;
 import com.justinmtech.sentiment.questions.Question;
 import com.justinmtech.sentiment.questions.QuestionManager;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +43,7 @@ public class ResponseFileManager {
                 map.put("player-uuid", response.getPlayer().getUuid().toString());
                 map.put("response", response.getResponse());
                 getResponseFileConfig().set("responses." + response.getResponseId().toString(), map);
-                return saveFile();
+                return saveResponseFile();
             } else {
                 getLogger().log(Level.SEVERE, "Error! That question does not exist.");
             }
@@ -83,7 +82,7 @@ public class ResponseFileManager {
         if (responseFile.exists()) {
             if (getQuestionManager().questionExists(question.getContent())) {
                 responseFileConfig.set("responses." + question.getContent() + "." + responseId, null);
-                return saveFile();
+                return saveResponseFile();
             } else {
                 getLogger().log(Level.SEVERE, "That question does not exist.");
             }
@@ -102,7 +101,7 @@ public class ResponseFileManager {
         if (!responseFile.exists()) {
             responseFile.getParentFile().mkdirs();
             getPlugin().saveResource(FILE_NAME, false);
-            getLogger().log(Level.INFO, "Player data file created.");
+            getLogger().log(Level.INFO, "Response data file created.");
         }
         responseFileConfig = YamlConfiguration.loadConfiguration(responseFile);
     }
@@ -111,7 +110,7 @@ public class ResponseFileManager {
         return responseFileConfig;
     }
 
-    private boolean saveFile() {
+    private boolean saveResponseFile() {
         try {
             getResponseFileConfig().save(getResponseFile());
             return true;

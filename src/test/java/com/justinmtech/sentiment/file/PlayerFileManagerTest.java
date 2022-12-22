@@ -20,6 +20,7 @@ public class PlayerFileManagerTest extends TestCase {
     }
 
     public void tearDown() {
+        MockBukkit.unload();
         server = null;
         plugin = null;
     }
