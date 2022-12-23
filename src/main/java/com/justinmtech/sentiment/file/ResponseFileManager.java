@@ -23,9 +23,20 @@ public class ResponseFileManager {
     private final QuestionManager questionManager;
     private final Logger logger;
 
-    private static final String FILE_NAME = "responses.yml";
     private File responseFile;
     private FileConfiguration responseFileConfig;
+
+    private static final String FILE_NAME = "responses.yml";
+
+    private static final String RESPONSES_BASE_PATH = "responses.";
+    private static final String PLAYER_NAME = "player-name";
+    private static final String PLAYER_UUID = "player-uuid";
+    private static final String PLAYER_RESPONSE = "response";
+
+    private static final String RESPONSE_FILE_CREATED = "Response file created.";
+    private static final String QUESTION_DOES_NOT_EXIST = "Error! That question does not exist.";
+    private static final String COULD_NOT_ADD_RESPONSE = "Error! Could not add response to file.";
+    private static final String RESPONSE_FILE_DOES_NOT_EXIST = "Error! Response file does not exist.";
 
     public ResponseFileManager(Sentiment plugin) {
         this.plugin = plugin;
@@ -39,41 +50,41 @@ public class ResponseFileManager {
             if (getQuestionManager().questionExists(question.getContent())) {
                 Map<String, String> map = new HashMap<>();
 
-                map.put("player-name", response.getPlayer().getName());
-                map.put("player-uuid", response.getPlayer().getUuid().toString());
-                map.put("response", response.getResponse());
-                getResponseFileConfig().set("responses." + response.getResponseId().toString(), map);
+                map.put(PLAYER_NAME, response.getPlayer().getName());
+                map.put(PLAYER_UUID, response.getPlayer().getUuid().toString());
+                map.put(PLAYER_RESPONSE, response.getResponse());
+                getResponseFileConfig().set(RESPONSES_BASE_PATH + response.getResponseId().toString(), map);
                 return saveResponseFile();
             } else {
-                getLogger().log(Level.SEVERE, "Error! That question does not exist.");
+                getLogger().log(Level.SEVERE, QUESTION_DOES_NOT_EXIST);
             }
         } else {
-            getLogger().log(Level.SEVERE, "Error! Could not add response to file.");
+            getLogger().log(Level.SEVERE, COULD_NOT_ADD_RESPONSE);
         }
         return false;
     }
 
     public Optional<PlayerResponse> getResponse(@NotNull Question question, @NotNull UUID responseId) {
-        String basePath = "responses." + question.getContent() + "." + responseId + ".";
+        String basePath = RESPONSES_BASE_PATH + question.getContent() + "." + responseId + ".";
         if (responseFile.exists()) {
             if (getQuestionManager().questionExists(question.getContent())) {
 
-                String playerName = responseFileConfig.getString(basePath + "player-name");
+                String playerName = responseFileConfig.getString(basePath + PLAYER_NAME);
                 if (playerName == null) playerName = PlayerFileManager.UNKNOWN_NAME;
 
-                String uuidString = responseFileConfig.getString(basePath + "player-uuid");
+                String uuidString = responseFileConfig.getString(basePath + PLAYER_UUID);
                 if (uuidString == null) return Optional.empty();
                 UUID playerUUID = UUID.fromString(uuidString);
 
-                String response = responseFileConfig.getString(basePath + "response");
+                String response = responseFileConfig.getString(basePath + PLAYER_RESPONSE);
                 if (response == null) response = "";
 
                 return Optional.of(new PlayerResponse(new SPlayer(playerName, playerUUID), question, response));
             } else {
-                getLogger().log(Level.SEVERE, "Error! That question does not exist.");
+                getLogger().log(Level.SEVERE, QUESTION_DOES_NOT_EXIST);
             }
         } else {
-            getLogger().log(Level.SEVERE, "Error! Could not find response file.");
+            getLogger().log(Level.SEVERE, RESPONSE_FILE_DOES_NOT_EXIST);
         }
         return Optional.empty();
     }
@@ -81,13 +92,13 @@ public class ResponseFileManager {
     public boolean removeResponseFromFile(@NotNull Question question, @NotNull UUID responseId) {
         if (responseFile.exists()) {
             if (getQuestionManager().questionExists(question.getContent())) {
-                responseFileConfig.set("responses." + question.getContent() + "." + responseId, null);
+                responseFileConfig.set(RESPONSES_BASE_PATH + question.getContent() + "." + responseId, null);
                 return saveResponseFile();
             } else {
-                getLogger().log(Level.SEVERE, "That question does not exist.");
+                getLogger().log(Level.SEVERE, QUESTION_DOES_NOT_EXIST);
             }
         } else {
-            getLogger().log(Level.SEVERE, "The response file does not exist.");
+            getLogger().log(Level.SEVERE, RESPONSE_FILE_DOES_NOT_EXIST);
         }
         return false;
     }
@@ -101,7 +112,7 @@ public class ResponseFileManager {
         if (!responseFile.exists()) {
             responseFile.getParentFile().mkdirs();
             getPlugin().saveResource(FILE_NAME, false);
-            getLogger().log(Level.INFO, "Response data file created.");
+            getLogger().log(Level.INFO, RESPONSE_FILE_CREATED);
         }
         responseFileConfig = YamlConfiguration.loadConfiguration(responseFile);
     }
